@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>多職種協働加算プロジェクト 文書ビューア</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Yu Gothic', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif; margin: 0; padding: 0; background: #f5f7fa; color: #1f2937; line-height: 1.7; }
+#login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+#login-box { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 10px 40px rgba(31,78,121,0.15); max-width: 420px; width: 100%; }
+#login-box h1 { color: #1F4E79; margin: 0 0 8px; font-size: 1.4rem; font-weight: 700; }
+#login-box .subtitle { color: #6b7280; font-size: 0.9rem; margin-bottom: 28px; }
+#login-box input[type=password] { width: 100%; padding: 14px 16px; font-size: 1rem; border: 2px solid #e5e7eb; border-radius: 8px; outline: none; font-family: inherit; }
+#login-box input[type=password]:focus { border-color: #2E75B6; }
+#login-box button { width: 100%; margin-top: 16px; padding: 14px; font-size: 1rem; font-weight: 600; background: #1F4E79; color: white; border: none; border-radius: 8px; cursor: pointer; }
+#login-box button:hover:not(:disabled) { background: #2E75B6; }
+#login-box button:disabled { opacity: 0.6; cursor: not-allowed; }
+#error { color: #dc2626; font-size: 0.9rem; margin-top: 12px; display: none; }
+#error.show { display: block; }
+.footer-note { color: #9ca3af; font-size: 0.8rem; margin-top: 24px; text-align: center; line-height: 1.5; }
+#viewer { display: none; }
+#viewer.show { display: block; }
+#header { background: #1F4E79; color: white; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+#header h1 { margin: 0; font-size: 1.05rem; font-weight: 600; }
+#header .meta { font-size: 0.78rem; opacity: 0.85; margin-top: 4px; }
+#logout { position: absolute; top: 16px; right: 20px; background: rgba(255,255,255,0.18); color: white; border: 1px solid rgba(255,255,255,0.4); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+#logout:hover { background: rgba(255,255,255,0.3); }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 12px 20px 0; background: white; border-bottom: 1px solid #e5e7eb; position: sticky; top: 56px; z-index: 50; }
+.tab-btn { background: transparent; border: none; padding: 10px 18px; cursor: pointer; font-size: 0.95rem; color: #6b7280; border-bottom: 3px solid transparent; font-family: inherit; font-weight: 500; }
+.tab-btn:hover { color: #1F4E79; }
+.tab-btn.active { color: #1F4E79; border-bottom-color: #1F4E79; font-weight: 600; }
+.content { max-width: 980px; margin: 0 auto; padding: 24px 20px 60px; background: white; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+.tab-pane h1 { color: #1F4E79; border-bottom: 3px solid #1F4E79; padding-bottom: 10px; margin-top: 0; font-size: 1.7rem; }
+.tab-pane h2 { color: #1F4E79; border-left: 5px solid #2E75B6; padding-left: 12px; margin-top: 32px; font-size: 1.3rem; }
+.tab-pane h3 { color: #2E75B6; margin-top: 24px; font-size: 1.1rem; }
+.tab-pane h4 { color: #4b5563; font-size: 1rem; }
+.tab-pane blockquote { background: #DEEBF7; border-left: 4px solid #1F4E79; margin: 16px 0; padding: 12px 16px; }
+.tab-pane table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+.tab-pane th { background: #1F4E79; color: white; padding: 10px 12px; text-align: left; font-weight: 600; }
+.tab-pane td { padding: 10px 12px; border-bottom: 1px solid #e5e7eb; }
+.tab-pane tr:nth-child(even) { background: #f9fafb; }
+.tab-pane code { background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 0.9em; }
+.tab-pane ul, .tab-pane ol { padding-left: 24px; }
+.tab-pane li { margin: 4px 0; }
+.tab-pane hr { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+.tab-pane strong { color: #1F4E79; }
+@media (max-width: 640px) {
+  .tabs { padding: 8px 8px 0; gap: 2px; overflow-x: auto; flex-wrap: nowrap; }
+  .tab-btn { padding: 8px 12px; font-size: 0.85rem; white-space: nowrap; }
+  .content { padding: 16px 14px 40px; }
+  .tab-pane h1 { font-size: 1.4rem; }
+  .tab-pane h2 { font-size: 1.15rem; }
+  .tab-pane table { font-size: 0.82rem; display: block; overflow-x: auto; }
+  #header h1 { font-size: 0.95rem; }
+  #logout { padding: 5px 10px; font-size: 0.75rem; }
+}
+#loading { display: none; text-align: center; padding: 8px 0; color: #6b7280; font-size: 0.85rem; }
+#loading.show { display: block; }
+</style>
+</head>
+<body>
+<div id="login">
+<div id="login-box">
+<h1>🏥 多職種協働加算プロジェクト</h1>
+<div class="subtitle">柏崎総合医療センター 臨床検査科<br>文書ビューア（パスワード保護）</div>
+<input type="password" id="password" placeholder="パスワード" autocomplete="off" autofocus>
+<button id="submit">アクセス</button>
+<div id="loading">復号中…</div>
+<div id="error">パスワードが違います</div>
+<div class="footer-note">※ パスワードは技師長から共有されます<br>※ ブラウザ内で完結する暗号化のため、入力情報は外部送信されません</div>
+</div>
+</div>
+<div id="viewer">
+<div id="header">
+<h1>🏥 多職種協働加算プロジェクト 文書ビューア</h1>
+<div class="meta">柏崎総合医療センター 臨床検査科 / 令和8年度</div>
+<button id="logout">ログアウト</button>
+</div>
+<div id="content-area"></div>
+</div>
+<script>
+let payloadCache = null;
+async function loadPayload() {
+  if (payloadCache) return payloadCache;
+  const res = await fetch('./data.json?t=' + Date.now());
+  if (!res.ok) throw new Error('データの読み込みに失敗しました');
+  payloadCache = await res.json();
+  return payloadCache;
+}
+async function decryptContent(password) {
+  const data = await loadPayload();
+  const salt = Uint8Array.from(atob(data.salt), c => c.charCodeAt(0));
+  const iv = Uint8Array.from(atob(data.iv), c => c.charCodeAt(0));
+  const ct = Uint8Array.from(atob(data.ct), c => c.charCodeAt(0));
+  const enc = new TextEncoder();
+  const passwordKey = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: salt, iterations: data.iter, hash: 'SHA-256' },
+    passwordKey,
+    { name: 'AES-GCM', length: 256 },
+    false, ['decrypt']
+  );
+  const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
+  return new TextDecoder().decode(plaintext);
+}
+async function attemptLogin() {
+  const password = document.getElementById('password').value;
+  if (!password) return;
+  const errorEl = document.getElementById('error');
+  const loadingEl = document.getElementById('loading');
+  const submitBtn = document.getElementById('submit');
+  errorEl.classList.remove('show');
+  loadingEl.classList.add('show');
+  submitBtn.disabled = true;
+  try {
+    const html = await decryptContent(password);
+    document.getElementById('content-area').innerHTML = html;
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('viewer').classList.add('show');
+    setupTabs();
+    sessionStorage.setItem('mda_pw', password);
+  } catch (e) {
+    errorEl.classList.add('show');
+    document.getElementById('password').select();
+  } finally {
+    loadingEl.classList.remove('show');
+    submitBtn.disabled = false;
+  }
+}
+function setupTabs() {
+  const buttons = document.querySelectorAll('.tab-btn');
+  const panes = document.querySelectorAll('.tab-pane');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      buttons.forEach(b => b.classList.remove('active'));
+      panes.forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+}
+document.getElementById('submit').addEventListener('click', attemptLogin);
+document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+document.getElementById('logout').addEventListener('click', () => { sessionStorage.removeItem('mda_pw'); location.reload(); });
+window.addEventListener('load', async () => {
+  const savedPw = sessionStorage.getItem('mda_pw');
+  if (savedPw) {
+    document.getElementById('password').value = savedPw;
+    await attemptLogin();
+  }
+});
+</script>
+</body>
+</html>
